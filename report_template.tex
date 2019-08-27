@@ -1,0 +1,205 @@
+% !TEX TS-program = xelatex
+% !TEX encoding = UTF-8 Unicode
+
+\documentclass[12pt, letterpaper]{article}
+
+% Set document data
+\newcommand{\settitle}{Analysis of Muddy Points Survey \#\VAR{contents.get("quiz_number")}}
+\newcommand{\setauthor}{Andrew Hoetker}
+\title{\settitle}
+\author{\setauthor}
+
+% Math environments
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+% Chemical formulas
+\usepackage[version=4]{mhchem}
+\usepackage{chemfig}
+
+% SI units and friends
+\usepackage{siunitx}
+\DeclareSIUnit\Fahrenheit{\degree F}
+\DeclareSIUnit\pound{lb}
+\DeclareSIUnit\poundmass{lb\textsubscript{m}}
+\DeclareSIUnit\foot{ft}
+\DeclareSIUnit\atm{atm}
+\DeclareSIUnit\poise{P}
+
+% Page layout
+\usepackage[margin=1in,paper=letterpaper]{geometry}
+\usepackage{setspace}
+
+% Header
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{\setauthor}
+\rhead{\settitle}
+\rfoot{\tiny{Generated \VAR{
+	contents.get("timestamp")
+} using Canvas API}}
+
+% XeLaTeX Fonts
+%\usepackage{unicode-math}
+%\setmainfont[%
+%	BoldFont={STIX2Text-Bold.otf},
+%	ItalicFont={STIX2Text-Italic.otf}]{STIX2Text-Regular.otf}
+
+%\setmathfont{STIX2Math.otf}
+
+\usepackage{stix2}
+
+% Bibliography
+%\usepackage[backend=biber,style=chem-acs,citestyle=chem-acs]{biblatex}
+%\addbibresource{styreneproject.bib}
+
+% Fancy linked references
+\usepackage{varioref}
+\labelformat{equation}{equation~(#1)}
+\labelformat{figure}{figure~#1}
+\labelformat{table}{table~#1}
+\labelformat{appendix}{appendix~#1}
+
+% Hyperlinks
+% These will turn internal cross-references, in-text citations,
+% and headings into clickable links in the PDF. The link text
+% will still be black.
+\usepackage{color}
+\usepackage[%
+	pdfborder=0,
+	colorlinks=true,
+	urlcolor=black,
+	linkcolor=black,
+	citecolor=black]{hyperref}
+
+% Figures and captions
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{caption}
+\captionsetup[figure]{justification=centering,labelfont=it}
+\captionsetup[table]{justification=centering,labelfont=it}
+\usepackage[section]{placeins}
+
+% Filler text
+\usepackage{lipsum}
+
+
+\begin{document}
+
+\maketitle
+
+\section*{Attendance for Both Sections}
+
+This week, \VAR{
+	contents
+		.get("combined")
+		.get("attendance")
+		.get("count")
+} students earned attendance points by responding to the Muddy Points survey.
+
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics{\VAR{
+		contents
+			.get("combined")
+			.get("attendance")
+			.get("filename")
+	}}
+	\caption{\VAR{
+		contents
+			.get("combined")
+			.get("attendance")
+			.get("title")
+	}}
+\end{figure}
+
+%- for instructor in contents["instructors"]
+\newpage
+\section*{Analysis for Dr. \VAR{instructor}}
+
+\subsection*{Self-Assessed Confusion}
+
+The students were asked, "\VAR{
+	contents
+	.get("instructors")
+	.get(instructor)
+	.get("ranked_confusion")
+	.get("title")
+	.strip()
+}".
+
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics{\VAR{
+		contents
+		.get("instructors")
+		.get(instructor)
+		.get("ranked_confusion")
+		.get("filename")
+	}}
+	\caption{Histogram of self-reported confusion.}
+\end{figure}
+\FloatBarrier
+
+This week, \VAR{
+	contents
+		.get("instructors")
+		.get(instructor)
+		.get("ranked_confusion")
+		.get("count")
+} students responded to the question in this section.
+The average self-reported confusion was \VAR{
+	"{:.2f}".format(contents
+		.get("instructors")
+		.get(instructor)
+		.get("ranked_confusion")
+		.get("mean_confusion")
+	)
+}, and the median self-reported confusion was \VAR{
+	"{:.2f}".format(contents
+		.get("instructors")
+		.get(instructor)
+		.get("ranked_confusion")
+		.get("median_confusion")
+	)
+}.
+
+\subsection*{Confusing and Interesting Topics}
+
+The students were asked to respond with a short answer to, "\VAR{
+	contents
+	.get("instructors")
+	.get(instructor)
+	.get("short_response")
+	.get("title")
+	.strip()
+}".
+
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics{\VAR{
+		contents
+		.get("instructors")
+		.get(instructor)
+		.get("short_response")
+		.get("filename")
+	}}
+	\caption{Wordcloud of short responses.}
+\end{figure}
+\FloatBarrier
+
+These are some responses from students who reported the highest levels of confusion:
+
+%- for question in contents.get("instructors").get(instructor).get("most_confused")
+    %- for k, v in question.items()
+        \begin{quote}
+        \textit{\VAR{k}}
+        \textbf{Confusion level: \VAR{v}}
+        \end{quote}
+    %- endfor
+%- endfor
+
+%- endfor
+
+\end{document}
