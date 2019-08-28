@@ -5,6 +5,12 @@ recipients.txt
 # macOS binary records
 .DS_Store
 
+# outputs from this program
+output/
+figures/
+contents.json
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
