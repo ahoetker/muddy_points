@@ -17,15 +17,15 @@ def cli():
 @click.argument("course_name", type=click.STRING)
 @click.argument("quiz_number", type=click.INT)
 @click.option("-o", "--output_dir", type=Path, default=Path("output"), help="Output directory")
-@click.option("-f", "--figures_dir", type=Path, default=Path("figures"), help="Figure output directory")
 @click.option("-t", "--template_file", type=Path, default=Path("report_template.tex"), help="LaTeX/Jinja2 template.")
 @click.option("-r", "--recipients_file", type=Path, default=Path("recipients.txt"), help="List of recipient names.")
 @click.option("--token_file", type=Path, default=Path("canvas_token.txt"), help="Canvas API auth token.")
 @click.option("-s", help="Use previously generated data.")
-def generate(course_name, quiz_number, output_dir, figures_dir, template_file, recipients_file, token_file, s):
+def generate(course_name, quiz_number, output_dir, template_file, recipients_file, token_file, s):
     """Driver/interface function for generating a report.
     """
     # Create directories if needed
+    figures_dir = Path(output_dir / "figures")
     for d in [output_dir, figures_dir]:
         export.create_dir(d)
 
