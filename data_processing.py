@@ -1,12 +1,11 @@
 import requests
 import re
 import pytz
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import seaborn as sns
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 from wordcloud import WordCloud
 from datetime import datetime
 from pathlib import Path
@@ -42,6 +41,7 @@ def plot_attendance_by_section(questions_df: pd.DataFrame, filename: Path) -> Di
 
     return attendance
 
+
 def split_by_instructor(
     questions_df: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
@@ -72,6 +72,8 @@ def combined_confusion_barplot(report_df: pd.DataFrame, filename: Path) -> Dict:
     ax = fig.add_subplot(1, 1, 1)
     ax.bar([1, 2, 3, 4, 5], v_counts, width=0.8, label="Varman")
     ax.bar([1, 2, 3, 4, 5], h_counts, bottom=v_counts, width=0.8, label="Holloway")
+    ax.set_xlabel("Confusion")
+    ax.set_ylabel("Responses")
     plt.legend()
     plt.savefig(str(filename), bbox_inches="tight")
 
@@ -100,7 +102,8 @@ def combined_confusion_kdeplot(report_df: pd.DataFrame, filename: Path) -> Dict:
         "filename": str(filename),
     }
 
-def points_wordcloud(q, df, number, title, filename: Path):
+
+def points_wordcloud(q, df, filename: Path):
     try:
         text = " ".join([str(response) for response in df[q]])
         wc = WordCloud(background_color="white").generate_from_text(text)
@@ -164,7 +167,7 @@ def process_instructor_results(df: pd.DataFrame, instructor: str, figures_dir: P
         filename = Path(figures_dir / f"{instructor}_{number}.pdf")
 
         if "confusing or interesting topics" in q:
-            points_wordcloud(q, df, number, title, filename)
+            points_wordcloud(q, df, filename)
             plots_created["short_response"] = {"title": title, "filename": str(filename)}
 
         elif "rank your confusion" in q:
