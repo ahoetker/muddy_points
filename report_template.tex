@@ -84,12 +84,17 @@
 % Filler text
 \usepackage{lipsum}
 
+\setcounter{secnumdepth}{0} % sections are level 1
+
 
 \begin{document}
 
 \maketitle
+\tableofcontents
 
-\section*{Attendance for Both Sections}
+\newpage
+\section{Analysis for Both Sections}
+\subsection{Attendance by Section}
 
 This week, \VAR{
 	contents
@@ -114,11 +119,38 @@ This week, \VAR{
 	}}
 \end{figure}
 
+%- if contents.get("combined").get("attendance").get("notes")
+\bigskip
+\textbf{Note:} \VAR{contents
+                        .get("combined")
+                        .get("attendance")
+                        .get("notes")
+                    }
+%- endif
+
+\subsection{Self-Assessed Confusion by Section}
+\begin{figure}[hbt!]
+	\centering
+	\includegraphics{\VAR{
+		contents
+			.get("combined")
+			.get("stacked")
+			.get("filename")
+	}}
+	\caption{\VAR{
+		contents
+			.get("combined")
+			.get("stacked")
+			.get("title")
+	}}
+\end{figure}
+
+
 %- for instructor in contents["instructors"]
 \newpage
-\section*{Analysis for Dr. \VAR{instructor}}
+\section{Analysis for Dr. \VAR{instructor}}
 
-\subsection*{Self-Assessed Confusion}
+\subsection{Self-Assessed Confusion}
 
 The students were asked, "\VAR{
 	contents
@@ -165,7 +197,7 @@ The average self-reported confusion was \VAR{
 	)
 }.
 
-\subsection*{Confusing and Interesting Topics}
+\subsection{Confusing and Interesting Topics}
 
 The students were asked to respond with a short answer to, "\VAR{
 	contents
@@ -176,9 +208,22 @@ The students were asked to respond with a short answer to, "\VAR{
 	.strip()
 }".
 
+
+These are some responses from students who reported the highest levels of confusion:
+
+%- for question in contents.get("instructors").get(instructor).get("most_confused")
+    %- for k, v in question.items()
+        \bigskip
+        \noindent\textbf{Confusion level: \VAR{v}} \\
+        \begin{quote}
+        \textit{\VAR{k}}
+        \end{quote}
+    %- endfor
+%- endfor
+
 \begin{figure}[hbt!]
 	\centering
-	\includegraphics{\VAR{
+	\includegraphics[scale=0.85]{\VAR{
 		contents
 		.get("instructors")
 		.get(instructor)
@@ -188,17 +233,6 @@ The students were asked to respond with a short answer to, "\VAR{
 	\caption{Wordcloud of short responses.}
 \end{figure}
 \FloatBarrier
-
-These are some responses from students who reported the highest levels of confusion:
-
-%- for question in contents.get("instructors").get(instructor).get("most_confused")
-    %- for k, v in question.items()
-        \begin{quote}
-        \textit{\VAR{k}}
-        \textbf{Confusion level: \VAR{v}}
-        \end{quote}
-    %- endfor
-%- endfor
 
 %- endfor
 

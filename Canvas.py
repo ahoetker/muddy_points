@@ -173,7 +173,7 @@ class Canvas():
             print(response.text)
             return False
 
-    def get_quiz_report_df(self, course_name: str, number: int) -> pd.DataFrame:
+    def get_quiz_report(self, course_name: str, number: int) -> pd.DataFrame:
         course_id = self._get_course_id(course_name)
         quiz_id = self._get_muddy_points_id(course_id, number)
         report = self._get_quiz_report(course_id, quiz_id)

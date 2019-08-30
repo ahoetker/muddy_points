@@ -5,7 +5,7 @@ from latex.jinja2 import make_env
 from latex import build_pdf
 from pathlib import Path
 
-import Canvas
+from Canvas import Canvas
 import data_processing
 import export
 
@@ -29,12 +29,19 @@ def generate(course_name, quiz_number, output_dir, template_file, recipients_fil
     for d in [output_dir, figures_dir]:
         export.create_dir(d)
 
-    # Use the stale dataset, or grab a fresh one
+    # Use a stale dataset, or grab a fresh one
     if s is True:
+        print("Loading contents from file...")
         with open("contents.json", "r") as f:
             contents = json.load(f)
     else:
-        contents = data_processing.generate_report_contents(course_name, quiz_number, figures_dir, recipients_file)
+        print("Fetching data from Canvas...")
+        with token_file.open("r") as f:
+            token = f.read()
+        c = Canvas("asu.instructure.com", "v1", token)
+        report_df = c.get_quiz_report(course_name, quiz_number)
+        print("Fetch complete.")
+        contents = data_processing.generate_report_contents(c, report_df, quiz_number, figures_dir, recipients_file)
         with open("contents.json", "w+") as f:
             json.dump(contents, f)
 
