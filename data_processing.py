@@ -18,6 +18,12 @@ plt.rcParams["mathtext.fontset"] = "stix"
 
 
 def plot_attendance_by_section(questions_df: pd.DataFrame, filename: Path) -> Dict:
+    """Create plot of survey participation.
+
+    :param questions_df: DataFrame with questions/responses as columns.
+    :param filename: Path to write plot to file.
+    :return: Information about the plot to be used in LaTeX template.
+    """
     attendance_text = list(
         filter(lambda q: "registered for" in q, questions_df.columns.values)
     )[0]
@@ -35,7 +41,9 @@ def plot_attendance_by_section(questions_df: pd.DataFrame, filename: Path) -> Di
     }
 
     if len(attendance_question.value_counts()) > 2:
-        attendance["notes"] = """At least one student selected both instructors. This may be an error, 
+        attendance[
+            "notes"
+        ] = """At least one student selected both instructors. This may be an error, 
         or it may indicate that the student attended a lecture in each section this week.
         """
 
@@ -45,6 +53,14 @@ def plot_attendance_by_section(questions_df: pd.DataFrame, filename: Path) -> Di
 def split_by_instructor(
     questions_df: pd.DataFrame
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Split a DataFrame by instructor.
+
+    This function is almost certainly going to be deprecated soon. It turns out that keeping the original
+    DataFrame intact and querying it has almost the same performance.
+
+    :param questions_df: DataFrame with questions/responses as columns.
+    :return: Tuple of DataFrames for each instructor.
+    """
     attendance_text = list(
         filter(lambda q: "registered for" in q, questions_df.columns.values)
     )[0]
@@ -54,6 +70,12 @@ def split_by_instructor(
 
 
 def combined_confusion_barplot(report_df: pd.DataFrame, filename: Path) -> Dict:
+    """Create stacked barplot of confusion ratings.
+
+    :param report_df: DataFrame of quiz report data.
+    :param filename: Path to write plot to file.
+    :return: Information about the plot to be used in LaTeX template.
+    """
     df = report_df.filter(regex=r"(registered for)|(rank your)").dropna()
     df.columns = ["instructor", "confusion"]
     df = df[df["confusion"].apply(lambda x: str(x).isdigit())]
@@ -84,13 +106,25 @@ def combined_confusion_barplot(report_df: pd.DataFrame, filename: Path) -> Dict:
 
 
 def combined_confusion_kdeplot(report_df: pd.DataFrame, filename: Path) -> Dict:
+    """Create Kernel Density Estimation plot for confusion ratings.
+
+    This makes a very cool KDE plot comparing each section. I know KDE is not the proper
+    way to compare collections of categorical data, so the report just uses a stacked bar
+    plot. I do like how this looks...
+
+    :param report_df: DataFrame of quiz report data.
+    :param filename: Path to write plot to file.
+    :return: Information about the plot to be used in LaTeX template.
+    """
     varman_df, holloway_df = split_by_instructor(report_df)
     varman_df = varman_df.filter(regex="rank your").dropna()
     varman_df.columns = ["confusion"]
     varman_df = varman_df[varman_df["confusion"].apply(lambda x: str(x).isdigit())]
     holloway_df = holloway_df.filter(regex="rank your").dropna()
     holloway_df.columns = ["confusion"]
-    holloway_df = holloway_df[holloway_df["confusion"].apply(lambda x: str(x).isdigit())]
+    holloway_df = holloway_df[
+        holloway_df["confusion"].apply(lambda x: str(x).isdigit())
+    ]
 
     plt.figure(figsize=(7.5, 3), dpi=300)
     sns.kdeplot(varman_df["confusion"], shade=True, label="Varman")
@@ -103,7 +137,14 @@ def combined_confusion_kdeplot(report_df: pd.DataFrame, filename: Path) -> Dict:
     }
 
 
-def points_wordcloud(q, df, filename: Path):
+def points_wordcloud(q: pd.DataFrame, df: pd.DataFrame, filename: Path) -> None:
+    """Create a WordCloud of the short-answer responses.
+
+    :param q: DataFrame containing only the short-answer column.
+    :param df: DataFrame of quiz report data.
+    :param filename: Path to write plot to file.
+    :return: None
+    """
     try:
         text = " ".join([str(response) for response in df[q]])
         wc = WordCloud(background_color="white").generate_from_text(text)
@@ -119,6 +160,12 @@ def points_wordcloud(q, df, filename: Path):
 
 
 def confusion_histogram(report_df: pd.DataFrame, filename: Path) -> pd.Series:
+    """Create a bar plot of self-rated confusion.
+
+    :param report_df: DataFrame of quiz report data.
+    :param filename: Path to write plot to file.
+    :return: pandas Series of cleaned response data.
+    """
     df = report_df.filter(regex=r"rank your").dropna()
     df.columns = ["confusion"]
     df = df[df["confusion"].apply(lambda x: str(x).isdigit())]
@@ -138,6 +185,11 @@ def confusion_histogram(report_df: pd.DataFrame, filename: Path) -> pd.Series:
 
 
 def most_confused_responses(df: pd.DataFrame) -> Dict:
+    """Get a dictionary of responses from the most confused students.
+
+    :param df: DataFrame of quiz report data.
+    :return: dictionary of responses.
+    """
     short_response_header = [
         h for h in df.columns.values if "confusing or interesting topics" in h
     ][0]
@@ -153,7 +205,16 @@ def most_confused_responses(df: pd.DataFrame) -> Dict:
     return {"most_confused": responses}
 
 
-def process_instructor_results(df: pd.DataFrame, instructor: str, figures_dir: Path) -> Dict:
+def process_instructor_results(
+        df: pd.DataFrame, instructor: str, figures_dir: Path
+) -> Dict:
+    """Call plotting functions and collect data for instructor-specific DataFrames.
+
+    :param df: DataFrame containing data for one instructor.
+    :param instructor: Name of the instructor.
+    :param figures_dir: Path to the output directory for figures.
+    :return: dictionary of data to be used in LaTeX document.
+    """
     if len(df) == 0:
         print("Could not plot, not enough entries.")
         return {}
@@ -168,7 +229,10 @@ def process_instructor_results(df: pd.DataFrame, instructor: str, figures_dir: P
 
         if "confusing or interesting topics" in q:
             points_wordcloud(q, df, filename)
-            plots_created["short_response"] = {"title": title, "filename": str(filename)}
+            plots_created["short_response"] = {
+                "title": title,
+                "filename": str(filename),
+            }
 
         elif "rank your confusion" in q:
             responses = confusion_histogram(df, filename)
@@ -185,20 +249,37 @@ def process_instructor_results(df: pd.DataFrame, instructor: str, figures_dir: P
 
 
 def generate_report_contents(
-        c: Canvas, report_df: pd.DataFrame, quiz_number: int, figures_dir: Path, recipients_file: Path = None
+        c: Canvas,
+        report_df: pd.DataFrame,
+        quiz_number: int,
+        figures_dir: Path,
+        recipients_file: Path = None,
 ) -> Dict:
     """Create a JSON-serializable Dict of the report contents
+
+    :param c: Already instantiated Canvas object.
+    :param report_df: DataFrame of quiz report data.
+    :param quiz_number: Which Muddy Points survey to check, e.g. 1
+    :param figures_dir: Path to the output directory for figures.
+    :param recipients_file: Path to file containing recipient names.
+    :param return: dictionary of report contents to be used in LaTeX document.
     """
     # Create plots and add them to contents
     print("Generating report contents...")
     questions_df = report_df.filter(regex=r"\d+", axis=1)
     combined_figures = {}
     attendance_filename = Path(figures_dir / "attendance.pdf")
-    combined_figures["attendance"] = plot_attendance_by_section(questions_df, attendance_filename)
+    combined_figures["attendance"] = plot_attendance_by_section(
+        questions_df, attendance_filename
+    )
     combined_confusion_filename = Path(figures_dir / "combined_kdeplot.pdf")
-    combined_figures["kdeplot"] = combined_confusion_kdeplot(report_df, combined_confusion_filename)
+    combined_figures["kdeplot"] = combined_confusion_kdeplot(
+        report_df, combined_confusion_filename
+    )
     combined_barplot_filename = Path(figures_dir / "combined_barplot.pdf")
-    combined_figures["stacked"] = combined_confusion_barplot(report_df, combined_barplot_filename)
+    combined_figures["stacked"] = combined_confusion_barplot(
+        report_df, combined_barplot_filename
+    )
     varman_df, holloway_df = split_by_instructor(questions_df)
     varman_data = process_instructor_results(varman_df, "Varman", figures_dir)
     holloway_data = process_instructor_results(holloway_df, "Holloway", figures_dir)

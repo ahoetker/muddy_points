@@ -16,14 +16,13 @@ In my experience, this is a good pattern for file I/O.
 # If zlib is available, use it to compress the archive.
 try:
     import zlib
+
     compression = zipfile.ZIP_DEFLATED
 except (ImportError, AttributeError):
     compression = zipfile.ZIP_STORED
 
-modes = {
-    zipfile.ZIP_DEFLATED: 'deflated',
-    zipfile.ZIP_STORED: 'stored',
-}
+modes = {zipfile.ZIP_DEFLATED: "deflated", zipfile.ZIP_STORED: "stored"}
+
 
 def create_dir(dir_path: Path) -> None:
     """Create a directory, does nothing if dir already exists.
@@ -32,6 +31,7 @@ def create_dir(dir_path: Path) -> None:
     :return: None
     """
     dir_path.mkdir(parents=True, exist_ok=True)
+
 
 def make_texfile(rendered_latex: str, latex_filepath: Path) -> None:
     """Write rendered LaTeX to a .tex file.
@@ -43,7 +43,8 @@ def make_texfile(rendered_latex: str, latex_filepath: Path) -> None:
     with latex_filepath.open("w+") as f:
         f.write(rendered_latex)
 
-def make_docx(latex_filepath: str , docx_filepath: Path) -> None:
+
+def make_docx(latex_filepath: str, docx_filepath: Path) -> None:
     """Create .docx file from LaTeX document.
 
     Due to limitations in pypandoc/pandoc itself, pypandoc.convert_file must
@@ -65,7 +66,7 @@ def make_archive(archive_name: Path, files: List[Path], figures: Path) -> None:
     :param figures: Path to directory containing all figures
     :return: None
     """
-    with zipfile.ZipFile(str(archive_name), mode='w') as zf:
+    with zipfile.ZipFile(str(archive_name), mode="w") as zf:
         for filename in files:
             zf.write(str(filename), compress_type=compression)
 

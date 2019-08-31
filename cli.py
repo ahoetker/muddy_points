@@ -9,19 +9,42 @@ from Canvas import Canvas
 import data_processing
 import export
 
+
 @click.group()
 def cli():
     pass
 
+
 @click.command()
 @click.argument("course_name", type=click.STRING)
 @click.argument("quiz_number", type=click.INT)
-@click.option("-o", "--output_dir", type=Path, default=Path("output"), help="Output directory")
-@click.option("-t", "--template_file", type=Path, default=Path("report_template.tex"), help="LaTeX/Jinja2 template.")
-@click.option("-r", "--recipients_file", type=Path, default=Path("recipients.txt"), help="List of recipient names.")
-@click.option("--token_file", type=Path, default=Path("canvas_token.txt"), help="Canvas API auth token.")
+@click.option(
+    "-o", "--output_dir", type=Path, default=Path("output"), help="Output directory"
+)
+@click.option(
+    "-t",
+    "--template_file",
+    type=Path,
+    default=Path("report_template.tex"),
+    help="LaTeX/Jinja2 template.",
+)
+@click.option(
+    "-r",
+    "--recipients_file",
+    type=Path,
+    default=Path("recipients.txt"),
+    help="List of recipient names.",
+)
+@click.option(
+    "--token_file",
+    type=Path,
+    default=Path("canvas_token.txt"),
+    help="Canvas API auth token.",
+)
 @click.option("-s", help="Use previously generated data.")
-def generate(course_name, quiz_number, output_dir, template_file, recipients_file, token_file, s):
+def generate(
+        course_name, quiz_number, output_dir, template_file, recipients_file, token_file, s
+):
     """Driver/interface function for generating a report.
     """
     # Create directories if needed
@@ -41,7 +64,9 @@ def generate(course_name, quiz_number, output_dir, template_file, recipients_fil
         c = Canvas("asu.instructure.com", "v1", token)
         report_df = c.get_quiz_report(course_name, quiz_number)
         print("Fetch complete.")
-        contents = data_processing.generate_report_contents(c, report_df, quiz_number, figures_dir, recipients_file)
+        contents = data_processing.generate_report_contents(
+            c, report_df, quiz_number, figures_dir, recipients_file
+        )
         with open("contents.json", "w+") as f:
             json.dump(contents, f)
 
@@ -61,7 +86,7 @@ def generate(course_name, quiz_number, output_dir, template_file, recipients_fil
     print("Typesetting complete.")
 
     # Export to Microsoft Word and LaTeX formats for further editing
-    docx_filename =  Path(output_dir / f"{base_filename}.docx")
+    docx_filename = Path(output_dir / f"{base_filename}.docx")
     latex_filename = Path(output_dir / f"{base_filename}.tex")
     export.make_texfile(rendered_latex, latex_filename)
     export.make_docx(latex_filename, docx_filename)
@@ -69,7 +94,9 @@ def generate(course_name, quiz_number, output_dir, template_file, recipients_fil
     # Create archive
     print("Creating archive...")
     zip_filename = Path(output_dir / f"{base_filename}.zip")
-    export.make_archive(zip_filename, [pdf_filename, docx_filename, latex_filename], figures_dir)
+    export.make_archive(
+        zip_filename, [pdf_filename, docx_filename, latex_filename], figures_dir
+    )
     print(f"Created archive: {zip_filename}")
 
 
