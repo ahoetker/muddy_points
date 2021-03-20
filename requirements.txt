@@ -7,7 +7,7 @@ decorator==4.4.0
 funcsigs==1.0.2
 future==0.17.1
 idna==2.8
-Jinja2==2.10.1
+Jinja2==2.11.3
 kiwisolver==1.1.0
 latex==0.7.0
 MarkupSafe==1.1.1
