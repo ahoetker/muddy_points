@@ -23,5 +23,5 @@ requests==2.22.0
 shutilwhich==1.1.0
 six==1.12.0
 tempdir==0.7.1
-urllib3==1.25.3
+urllib3==1.25.8
 wordcloud==1.5.0
